@@ -1,5 +1,5 @@
 # parameters
-ARG REPO_NAME="CharanReddy"
+ARG REPO_NAME="charan_ros_core"
 
 # ==================================================>
 # ==> Do not change this code
@@ -9,7 +9,7 @@ ARG BASE_TAG=${MAJOR}-${ARCH}
 ARG BASE_IMAGE=dt-core
 
 # define base image
-FROM duckietown/${BASE_IMAGE}:${BASE_TAG}
+FROM charared/${BASE_IMAGE}:${BASE_TAG}
 
 # define repository path
 ARG REPO_NAME
