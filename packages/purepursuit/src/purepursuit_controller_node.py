@@ -85,6 +85,7 @@ class purepursuit_controller(object):
         self.stop_line_detected = False
 
     def lineseglist_cb(self, seglist_msg, seglist_source):
+        print("LOLLLLLLLLLLLLLL")
         for received_segment in seglist_msg.segments:
             rospy.loginfo("[%s] %s" %(self.node_name, received_segment))
         return
