@@ -9,6 +9,12 @@
         <arg name="pkg_name" default="purepursuit" doc="name of the package"/>
         <arg name="node_name" default="purepursuit_controller_node" doc="name of the node"/>
 
+        <group ns="$(arg veh)">
+            <node  pkg="$(arg pkg_name)" type="$(arg node_name).py" name="$(arg node_name)" output="screen" required="true">
+                <rosparam command="load" file="$(find purepursuit)/config/$(arg node_name)/$(arg param_file_name).yaml"/>
+            </node>
+        </group>
+        
         <!-- start basic args -->
         <include file="$(find duckietown_demos)/launch/master.launch">
             <arg name="veh" value="$(arg veh)"/>
@@ -24,10 +30,6 @@
             <arg name="vehicle_avoidance" default="false"/>
         </include>
         
-        <group ns="$(arg veh)">
-            <node  pkg="$(arg pkg_name)" type="$(arg node_name).py" name="$(arg node_name)" output="screen" required="true">
-                <rosparam command="load" file="$(find purepursuit)/config/$(arg node_name)/$(arg param_file_name).yaml"/>
-            </node>
-        </group>
+
 
 </launch>
