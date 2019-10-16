@@ -1,0 +1,33 @@
+<launch>
+        <arg name="veh" default="$(env VEHICLE_NAME)"/>
+        <arg name="ai_trafo_mode" default="cb" doc="'cb' for colo balance only; 'both' for color balance and linear trafo"/>
+        <arg name="ai_interval" default="5" doc="interval with which the linear trafo gets updated. color balance is performed every second."/>
+        <arg name="verbose" default="false"/>
+
+        <arg name="param_file_name" default="default" doc="Specify a param file. ex:megaman"/>
+        <arg name="param_file_name_wheels_driver_node" default="default" doc="Specify a param file. ex:megaman"/>
+        <arg name="pkg_name" default="purepursuit" doc="name of the package"/>
+        <arg name="node_name" default="purepursuit_controller_node" doc="name of the node"/>
+
+        <!-- start basic args -->
+        <include file="$(find duckietown_demos)/launch/master.launch">
+            <arg name="veh" value="$(arg veh)"/>
+            <arg name="visualization" default="true" />
+            <!--arg name="verbose" value="$(arg verbose)" /-->
+            <arg name="/camera/raw" default="true" />
+            <arg name="param_file_name" default="default" />
+            <arg name="line_detector_param_file_name" default="default" />
+            <arg name="anti_instagram" default="true" />
+            <arg name="ai_trafo_mode" value="$(arg ai_trafo_mode)"/>
+            <arg name="ai_interval" value="$(arg ai_interval)"/>
+            <arg name="/lane_following/stop_line_filter" default="false" /> <!-- will not every allow a transition into COORDINATION mode -->
+            <arg name="vehicle_avoidance" default="false"/>
+        </include>
+        
+        <group ns="$(arg veh)">
+            <node  pkg="$(arg pkg_name)" type="$(arg node_name).py" name="$(arg node_name)" output="screen" required="true">
+                <rosparam command="load" file="$(find purepursuit)/config/$(arg node_name)/$(arg param_file_name).yaml"/>
+            </node>
+        </group>
+
+</launch>

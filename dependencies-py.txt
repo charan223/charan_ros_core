@@ -1,1 +1,20 @@
 # LIST YOUR PYTHON PACKAGES HERE
+ruamel.yaml==0.15.34
+reprep
+
+
+# pyparsing==2.2.0
+# PyContracts==1.8.12
+# comptests==1.4.22
+# DecentLogs==1.1.2
+# 
+# conftools==1.9.1
+# procgraph==1.10.10
+# ros_node_utils==1.1.1
+# pymongo==3.5.1
+# beautifulsoup4==4.6.0
+# graphviz==0.9 --> for navigation
+# jpeg4py
+# networkx==2.2
+# SciPy==0.16
+# scikit-learn==0.20.3

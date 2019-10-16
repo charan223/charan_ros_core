@@ -1,1 +1,13 @@
 # LIST YOUR APT PACKAGES HERE
+ros-kinetic-image-transport
+ros-kinetic-image-transport-plugins
+ros-kinetic-image-geometry
+ros-kinetic-image-proc
+ros-kinetic-camera-calibration
+ros-kinetic-rqt
+ros-kinetic-rqt-common-plugins
+libyaml-cpp-dev
+python-sklearn
+python-pygame
+iputils-ping
+python-tk
