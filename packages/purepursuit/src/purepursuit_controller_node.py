@@ -1,3 +1,90 @@
+import rospy
+import math
+import numpy as np
+from duckietown_msgs.msg import Twist2DStamped, LanePose, SegmentList, Segment
+
+class purepursuit_controller(object):
+
+    #, "ground_projection", queue_size=1
+    def __init__(self):
+        self.node_name = rospy.get_name()
+        self.lookahead, self.only_yellow_offset, self.only_white_offset = 0.1, -0.15, 0.15
+
+        #Publishers
+        self.pub_car_cmd = rospy.Publisher("~car_cmd", Twist2DStamped, queue_size=1)
+
+        #Subscribers
+        self.sub_lineseglist = rospy.Subscriber("~seglist_filtered", SegmentList, self.lineseglist_cb, "lane_filter", queue_size=1)
+
+
+    def lineseglist_cb(self, seglist_msg, seglist_source):
+        
+        white_seg_count, yellow_seg_count = 0,0
+        white_x_accumulator, white_y_accumulator, yellow_x_accumulator, yellow_y_accumulator = 0.0, 0.0, 0.0, 0.0
+        white_avg_x, white_avg_y, yellow_avg_x, yellow_avg_y = 0.0, 0.0, 0.0, 0.0
+        if_only_white, if_only_yellow = True, True
+
+        for segment in seglist_msg.segments:
+            if segment.points[0].x < 0 or segment.points[1].x < 0: # the point is behind us
+                continue
+
+            if segment.color == segment.WHITE:
+                if_only_yellow = False
+                white_avg_x = (segment.points[0].x + segment.points[1].x) / 2
+                white_avg_y = (segment.points[0].y + segment.points[1].y) / 2 
+                white_x_accumulator += white_avg_x
+                white_y_accumulator += white_avg_y 
+                white_seg_count += 1.0
+            elif segment.color == segment.YELLOW:
+                if_only_white = False
+                yellow_avg_x = (segment.points[0].x + segment.points[1].x) / 2
+                yellow_avg_y = (segment.points[0].y + segment.points[1].y) / 2 
+                yellow_x_accumulator += yellow_avg_x
+                yellow_y_accumulator += yellow_avg_y 
+                yellow_seg_count += 1.0
+            else:
+                continue
+
+        if white_seg_count > 0:
+            white_centroid_x, white_centroid_y = white_x_accumulator/white_seg_count, white_y_accumulator/white_seg_count
+
+        if yellow_seg_count > 0:
+            yellow_centroid_x, yellow_centroid_y = yellow_x_accumulator/yellow_seg_count, yellow_y_accumulator/yellow_seg_count
+
+        if if_only_white:            
+            follow_point_x = white_centroid_x
+            follow_point_y = white_centroid_y - self.only_white_offset
+
+        if if_only_yellow:
+            follow_point_x = yellow_centroid_x
+            follow_point_y = yellow_centroid_y - self.only_yellow_offset
+
+        if not if_only_white and not if_only_yellow:
+            follow_point_x = 0.5 * (white_centroid_x + yellow_centroid_x)
+            follow_point_y = 0.5 * (white_centroid_y + yellow_centroid_y)
+
+        #tan_alpha = y/x => sine_alpha = y/sqrt((y^2 + x^2))
+        dist = np.sqrt(follow_point_x * follow_point_x + follow_point_y * follow_point_y)
+        sine_alpha = follow_point_y / dist
+
+        v = 0.5
+        omega  =  2 * v * sine_alpha / self.lookahead
+
+        car_control_msg = Twist2DStamped()
+        car_control_msg.v = v
+        car_control_msg.omega = omega
+        self.pub_car_cmd.publish(car_cmd_msg)
+        return
+
+    
+        
+if __name__ == "__main__":
+    rospy.init_node("purepursuit_controller_node", anonymous=True)
+    purepursuit_control_node = purepursuit_controller()
+    rospy.spin()
+
+
+'''
 #!/usr/bin/env python
 import math
 import time
@@ -35,7 +122,6 @@ class purepursuit_controller(object):
 
 
         # Subscriptions
-        self.sub_lineseglist = rospy.Subscriber("~seglist_filtered", SegmentList, self.lineseglist_cb, "lane_filter", queue_size=1)
         self.sub_lane_reading = rospy.Subscriber("~lane_pose", LanePose, self.PoseHandling, "lane_filter", queue_size=1)
 
         self.sub_obstacle_avoidance_pose = rospy.Subscriber("~obstacle_avoidance_pose", LanePose, self.PoseHandling, "obstacle_avoidance",queue_size=1)
@@ -86,6 +172,8 @@ class purepursuit_controller(object):
 
     def lineseglist_cb(self, seglist_msg, seglist_source):
         print("LOLLLLLLLLLLLLLL")
+        v = self.velocity.v
+        w = self.velocity.omega
         for received_segment in seglist_msg.segments:
             rospy.loginfo("[%s] %s" %(self.node_name, received_segment))
         return
@@ -502,48 +590,13 @@ if __name__ == "__main__":
     purepursuit_control_node = purepursuit_controller()
     rospy.spin()
 
-
-
-
-
-
-
 '''
-import rospy
 
-from duckietown_msgs.msg import Twist2DStamped, LanePose
-from duckietown_msgs.msg import (Segment, SegmentList)
-class purepursuit_controller(object):
 
-    #, "ground_projection", queue_size=1
-    def __init__(self):
-        self.node_name = rospy.get_name()
-        
-        #Publishers
-        self.pub_car_cmd = rospy.Publisher("~car_cmd", Twist2DStamped, queue_size=1)
-        self.pub_actuator_limits_received = rospy.Publisher("~actuator_limits_received", BoolStamped, queue_size=1)
 
-        #Subscribers
-        self.sub_lineseglist = rospy.Subscriber("/default/ground_projection/lineseglist_out", SegmentList, self.lineseglist_cb)
-        self.sub_lane_reading = rospy.Subscriber("/default/lane_filter_node/lane_pose", LanePose, self.PoseHandling, "lane_filter", queue_size=1)
-        self.sub_actuator_limits = rospy.Subscriber("~actuator_limits", Twist2DStamped, self.updateActuatorLimits, queue_size=1)
-        
-    def lineseglist_cb(self, seglist_msg, seglist_source):
-        for received_segment in seglist_msg.segments:
-            print(received_segment)
-        return
-    
-    def PoseHandling(self, input_pose_msg, pose_source):
-        return
-            
-    
-        
-if __name__ == "__main__":
-    rospy.init_node("purepursuit_controller_node", anonymous=False)
-    purepursuit_control_node = purepursuit_controller()
-    rospy.spin()
-'''    
-     
+
+
+
     
     
     
