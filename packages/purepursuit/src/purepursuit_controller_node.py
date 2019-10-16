@@ -35,7 +35,7 @@ class purepursuit_controller(object):
 
 
         # Subscriptions
-        self.sub_lineseglist = rospy.Subscriber("~lineseglist_out", SegmentList, self.lineseglist_cb, "ground_projection", queue_size=1)
+        self.sub_lineseglist = rospy.Subscriber("~seglist_filtered", SegmentList, self.lineseglist_cb, "lane_filter", queue_size=1)
         self.sub_lane_reading = rospy.Subscriber("~lane_pose", LanePose, self.PoseHandling, "lane_filter", queue_size=1)
 
         self.sub_obstacle_avoidance_pose = rospy.Subscriber("~obstacle_avoidance_pose", LanePose, self.PoseHandling, "obstacle_avoidance",queue_size=1)
