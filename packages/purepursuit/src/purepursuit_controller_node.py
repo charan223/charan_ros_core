@@ -8,7 +8,7 @@ class purepursuit_controller(object):
     #, "ground_projection", queue_size=1
     def __init__(self):
         self.node_name = rospy.get_name()
-        self.lookahead, self.only_yellow_offset, self.only_white_offset = 0.1, -0.15, 0.15
+        self.only_yellow_offset, self.only_white_offset, self.omega_gain = -0.15, 0.15, 4
 
         #Publishers
         self.pub_car_cmd = rospy.Publisher("~car_cmd", Twist2DStamped, queue_size=1)
@@ -63,16 +63,17 @@ class purepursuit_controller(object):
             follow_point_x = 0.5 * (white_centroid_x + yellow_centroid_x)
             follow_point_y = 0.5 * (white_centroid_y + yellow_centroid_y)
 
-        #tan_alpha = y/x => sine_alpha = y/sqrt((y^2 + x^2))
-        dist = np.sqrt(follow_point_x * follow_point_x + follow_point_y * follow_point_y)
-        sine_alpha = follow_point_y / dist
+        #tan_alpha = y/x 
+        alpha = np.arctan2(y, x)
 
-        v = 0.5
-        omega  =  2 * v * sine_alpha / self.lookahead
+        lookahead_dist = np.sqrt(follow_point_x * follow_point_x + follow_point_y * follow_point_y)
+
+        v = 0.2
+        omega  =  2 * v * np.sin(alpha) / lookahead_dist
 
         car_control_msg = Twist2DStamped()
         car_control_msg.v = v
-        car_control_msg.omega = omega
+        car_control_msg.omega = omega * self.omega_gain
         self.pub_car_cmd.publish(car_cmd_msg)
         return
 
