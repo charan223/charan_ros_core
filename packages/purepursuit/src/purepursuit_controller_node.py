@@ -73,8 +73,8 @@ def filtered_seglist_cb(seglist_msg):
 if __name__ == "__main__":
     #defining node, publisher, subscriber
     rospy.init_node("purepursuit_controller_node", anonymous=True)
-    sub_filtered_seglist = rospy.Subscriber("/bayesianduckie/lane_filter_node/seglist_filtered", SegmentList, filtered_seglist_cb)
-    pub_car_cmd = rospy.Publisher("/bayesianduckie/joy_mapper_node/car_cmd", Twist2DStamped, queue_size=10)
+    sub_filtered_seglist = rospy.Subscriber("/naruto/lane_filter_node/seglist_filtered", SegmentList, filtered_seglist_cb)
+    pub_car_cmd = rospy.Publisher("/naruto/joy_mapper_node/car_cmd", Twist2DStamped, queue_size=10)
 
     rospy.spin()
 
