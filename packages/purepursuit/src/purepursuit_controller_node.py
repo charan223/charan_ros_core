@@ -60,7 +60,7 @@ def filtered_seglist_cb(seglist_msg):
         alpha = np.arctan2(follow_point_y, follow_point_x)
         lookahead_dist = np.sqrt(follow_point_x * follow_point_x + follow_point_y * follow_point_y)
         #calculating v, omega
-        v = 0.2
+        v = 0.5
         omega  =  2 * v * np.sin(alpha) / lookahead_dist
 
         #publishing to car_cmd topic
