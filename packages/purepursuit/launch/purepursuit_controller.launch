@@ -24,7 +24,17 @@
         <arg name="node_name" default="purepursuit_controller_node" doc="name of the node"/>  
 
         <group ns="$(arg veh)">
+            <!-- <remap from="/$(arg veh)/purepursuit_controller_node/car_cmd" to="/$(arg veh)/joy_mapper_node/car_cmd"/>
+            <remap from="/$(arg veh)/lane_filter_node/seglist_filtered" to="/$(arg veh)/purepursuit_controller_node/seglist_filtered"/> -->
+            <remap from="purepursuit_controller_node/car_cmd" to="joy_mapper_node/car_cmd"/>
+            <remap from="purepursuit_controller_node/corrected_image/compressed" to="anti_instagram_node/corrected_image/compressed"/>
+            <remap from="purepursuit_controller_node/segment_list" to="line_detector_node/segment_list"/>
+            <remap from="purepursuit_controller_node/lane_pose" to="lane_filter_node/lane_pose"/>
+            <remap from="purepursuit_controller_node/lineseglist_out" to="ground_projection/lineseglist_out"/>
+            <remap from="purepursuit_controller_node/seglist_filtered" to="lane_filter_node/seglist_filtered"/>
+            <remap from="purepursuit_controller_node/segment_list" to="ground_projection/lineseglist_out"/>
             <node  pkg="$(arg pkg_name)" type="$(arg node_name).py" name="$(arg node_name)" output="screen" required="true">
+                <param name="~config_file_name" value="$(arg veh)"/>
             </node>
         </group>
 
