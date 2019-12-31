@@ -133,7 +133,7 @@ def filtered_seglist_cb(seglist_msg):
     if stop is True:
         car_control_msg.v = 0
         car_control_msg.omega = 0
-        print("NOT SENDING SHITTT. V= 0, omega = 0")
+        print("Sending V= 0, omega = 0")
     else:
         car_control_msg.v = v
         car_control_msg.omega = omega * omega_gain
@@ -181,7 +181,7 @@ def processImage(image_msg):
         x_arr, y_arr = point2ground([xg, xg+wg], [yg + hg, yg + hg], image_size[0], image_size[1])
         print("BOTTOM OF ROBOT : X ", x_arr, ' Y :', y_arr)
         if x_arr[0] < 0.35:
-            print("STOP THE FUCKIN Bot")
+            print("STOP THE Bot")
             stop = True
         else:
             stop = False
